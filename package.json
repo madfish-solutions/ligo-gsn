@@ -1,0 +1,23 @@
+{
+  "name": "ligo-gsn",
+  "version": "0.0.1",
+  "config": {
+    "network": "http://127.0.0.1:8732",
+    "network1": "https://testnet-tezos.giganode.io",
+    "contract": "Gsn"
+  },
+  "scripts": {
+    "build": "node scripts/cli.js build $npm_package_config_contract",
+    "deploy": "node scripts/cli.js deploy $npm_package_config_contract",
+    "test": "mocha --timeout 2000000"
+  },
+  "dependencies": {
+    "@taquito/taquito": "^6.3.4-beta.0",
+    "commander": "^5.1.0",
+    "dotenv": "^8.2.0",
+    "bignumber.js": "^9.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^7.2.0"
+  }
+}
