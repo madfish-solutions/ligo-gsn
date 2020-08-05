@@ -140,7 +140,7 @@ function main (const action : tokenAction; var s : storage) : return is
     skip
   } with case action of
     | Transfer(params) -> transfer(params.0, params.1.0, params.1.1, Tezos.sender, s)
-    | TransferSigned(params) -> transferSigned(params.0.0.0, params.0.0.1, params.0.1, params.1.0, params.1.1, s)
+    | TransferSigned(params) -> transferSigned(params.from_, params.to_, params.value, params.signed, params.pk, s)
     | Approve(params) -> approve(params.0, params.1, s)
     | GetBalance(params) -> getBalance(params.0, params.1, s)
     | GetAllowance(params) -> getAllowance(params.0.0, params.0.1, params.1, s)

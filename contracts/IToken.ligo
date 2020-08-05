@@ -25,7 +25,14 @@ type return is list (operation) * storage
 const noOperations : list (operation) = nil;
 
 (* Inputs *)
-type transferSignedParams is michelson_pair(michelson_pair(michelson_pair(address, "from", address, "to"), "", amt, "value"), "", michelson_pair(signature, "signature", key, "pk"), "")
+type transferSignedParams is
+  record [
+    from_           : address;
+    to_             : address;
+    value           : amt;
+    signed          : signature;
+    pk              : key;
+  ]
 type transferParams is michelson_pair(address, "from", michelson_pair(address, "to", amt, "value"), "")
 type approveParams is michelson_pair(trusted, "spender", amt, "value")
 type balanceParams is michelson_pair(address, "owner", contract(amt), "")
