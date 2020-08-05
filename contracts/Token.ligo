@@ -23,7 +23,7 @@ function getAllowance (const ownerAccount : account; const spender : address; co
   end;
 
 (* Transfer token to another account *)
-function transfer (const from_ : address; const to_ : address; const value : amt; var s : storage) : return is
+function transfer (const from_ : address; const to_ : address; const value : amt; const sender_ : address; var s : storage) : return is
   block {
     (* Sending to yourself? *)
     if from_ = to_ then
@@ -39,15 +39,15 @@ function transfer (const from_ : address; const to_ : address; const value : amt
     else skip;
 
     (* Check this address can spend the tokens *)
-    if from_ =/= Tezos.sender then block {
-      const spenderAllowance : amt = getAllowance(senderAccount, Tezos.sender, s);
+    if from_ =/= sender_ then block {
+      const spenderAllowance : amt = getAllowance(senderAccount, sender_, s);
 
       if spenderAllowance < value then
         failwith("NotEnoughAllowance")
       else skip;
 
       (* Decrease any allowances *)
-      senderAccount.allowances[Tezos.sender] := abs(spenderAllowance - value);
+      senderAccount.allowances[sender_] := abs(spenderAllowance - value);
     } else skip;
 
     (* Update sender balance *)
@@ -66,11 +66,23 @@ function transfer (const from_ : address; const to_ : address; const value : amt
     s.ledger[to_] := destAccount;
   } with (noOperations, s)
 
-function transferSigned (const from_ : address; const to_ : address; const value : amt; const sign: signature; const s : storage) : return is
+function transferSigned (const from_ : address; const to_ : address; const value : amt; const signed: signature; const pk: key; const s : storage) : return is
   block { 
-    skip
-  } with transfer(from_, to_, value, s)  
+    var sender_ : address := Tezos.sender;
+    if from_ = sender_ then skip else block {
 
+      (* Retrieve sender account from storage *)
+      const senderAccount : account = getAccount(from_, s);
+      const counter : nat = senderAccount.counter;
+  
+      const params : bytes = Bytes.concat(Bytes.concat(bytes_pack(from_), bytes_pack(to_)), bytes_pack(value));
+      const parametersHash : bytes = Crypto.blake2b(params);
+  
+      const unsignedTrx : bytes = Bytes.concat(Bytes.concat(bytes_pack(Tezos.chain_id), bytes_pack(counter)), Bytes.concat(bytes_pack(Tezos.self_address), bytes_pack(parametersHash)));
+      const pkAddress : address = address(implicit_account(Crypto.hash_key(pk)));
+      if Crypto.check(pk, signed, unsignedTrx) and pkAddress = from_ then sender_ := pkAddress else failwith("InvalidSignature");  
+    };
+  } with transfer (from_, to_, value, sender_, s)
 
 (* Approve an amt to be spent by another address in the name of the sender *)
 function approve (const spender : address; const value : amt; var s : storage) : return is
@@ -122,8 +134,8 @@ function main (const action : tokenAction; var s : storage) : return is
   block {
     skip
   } with case action of
-    | Transfer(params) -> transfer(params.0, params.1.0, params.1.1, s)
-    | TransferSigned(params) -> transferSigned(params.0.0, params.0.0, params.1.0, params.1.1, s)
+    | Transfer(params) -> transfer(params.0, params.1.0, params.1.1, Tezos.sender, s)
+    | TransferSigned(params) -> transferSigned(params.0.0.0, params.0.0.1, params.0.1, params.1.0, params.1.1, s)
     | Approve(params) -> approve(params.0, params.1, s)
     | GetBalance(params) -> getBalance(params.0, params.1, s)
     | GetAllowance(params) -> getAllowance(params.0.0, params.0.1, params.1, s)
