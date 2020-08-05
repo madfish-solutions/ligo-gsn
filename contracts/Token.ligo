@@ -80,9 +80,14 @@ function transferSigned (const from_ : address; const to_ : address; const value
   
       const unsignedTrx : bytes = Bytes.concat(Bytes.concat(bytes_pack(Tezos.chain_id), bytes_pack(counter)), Bytes.concat(bytes_pack(Tezos.self_address), bytes_pack(parametersHash)));
       const pkAddress : address = address(implicit_account(Crypto.hash_key(pk)));
-      if Crypto.check(pk, signed, unsignedTrx) and pkAddress = from_ then sender_ := pkAddress else failwith("InvalidSignature");  
+      if Crypto.check(pk, signed, unsignedTrx) and pkAddress = from_ then sender_ := pkAddress else failwith("InvalidSignature");
+      
+      (* Update storage *)
+      senderAccount.counter := counter + 1n;
+      s.ledger[from_] := senderAccount;
     };
-  } with transfer (from_, to_, value, sender_, s)
+//   } with transfer (from_, to_, value, sender_, s)
+  } with (noOperations, s)
 
 (* Approve an amt to be spent by another address in the name of the sender *)
 function approve (const spender : address; const value : amt; var s : storage) : return is
