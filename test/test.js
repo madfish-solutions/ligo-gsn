@@ -13,7 +13,7 @@ const { Test } = require("./cases");
 describe("Correct calls", function () {
   describe("Permit()", function () {
     it("should store permit request", async function () {
-      await Test.permit(gsnAddress);
+      await Test.permit(gsnAddress, tokenAddress);
     });
   });
 

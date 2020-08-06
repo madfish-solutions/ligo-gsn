@@ -3,6 +3,8 @@ const fs = require("fs");
 const { InMemorySigner } = require("@taquito/signer");
 const path = require("path");
 const { execSync } = require("child_process");
+const blake = require("blakejs");
+const bs58check = require("bs58check");
 
 const { network: provider } = JSON.parse(
   fs.readFileSync("./deploy/Token.json").toString()
@@ -48,4 +50,3 @@ exports.setup = async (keyPath = "../fixtures/key") => {
   });
   return tezos;
 };
-s;
