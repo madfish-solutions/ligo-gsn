@@ -24,9 +24,7 @@ class Test {
       hex2buf(addressDecoder.encoder(sender)) +
       hex2buf(addressDecoder.encoder(receiver)) +
       Uint8Array.from([amount]);
-    // console.log(argString);
     const argsHash = blake.blake2b(argString, null, 32);
-    // console.log(argsHash);
 
     hex2buf(
       buf2hex(
@@ -48,20 +46,24 @@ class Test {
       new Uint8Array([0]) +
       hex2buf(addressDecoder.encoder(tokenAddress)) +
       argsHash;
-    // console.log(paramsString);
     const paramHash = blake.blake2b(paramsString, null, 32);
-    // console.log(paramHash);
-    const signature = AliceTezos.signer.sign(buf2hex(paramHash));
-    // console.log(signature);
+    const signature = await AliceTezos.signer.sign(buf2hex(paramHash));
 
-    operation = await gsn.permit(signerKey, signature, buf2hex(paramHash));
+    let operation = await gsn.permit(
+      signerKey,
+      signature.sig,
+      buf2hex(paramHash)
+    );
     await operation.confirmation();
     assert.equal(operation.status, "applied", "Operation was not applied");
 
-    let finalStorage = await gsn.getFullStorage([paramHash]);
-    assert.equal(finalStorage.storage[paramHash].signerKey, signerKey);
-    assert.equal(finalStorage.storage[paramHash].paramHash, paramHash);
-    assert.equal(finalStorage.storage[paramHash].signature, signature);
+    let finalStorage = await gsn.getFullStorage([buf2hex(paramHash)]);
+    assert.equal(finalStorage[buf2hex(paramHash)].signerKey, signerKey);
+    assert.equal(
+      finalStorage[buf2hex(paramHash)].paramHash,
+      buf2hex(paramHash)
+    );
+    assert.equal(finalStorage[buf2hex(paramHash)].signature, signature.sig);
   }
 
   static async call(gsnAddress, tokenAddress) {}

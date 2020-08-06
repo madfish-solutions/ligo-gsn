@@ -11,6 +11,11 @@ function getTokenContract(const tokenAddress : address) : contract(transfer_type
 
 function permit (const params: permitParameter; const s : storage) : storage is
 block {  
+  case s[params.paramHash] of 
+    | Some(p) -> failwith("PermitExists")
+    | None -> skip
+    end;
+
   if Crypto.check(params.signerKey, params.signature, params.paramHash) then {
     s[params.paramHash] := params;
   } else failwith("InvalidSignature");
