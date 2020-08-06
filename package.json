@@ -7,15 +7,16 @@
     "contract": "Gsn"
   },
   "scripts": {
-    "build": "node scripts/cli.js build $npm_package_config_contract",
-    "deploy": "node scripts/cli.js deploy $npm_package_config_contract",
+    "build": "node scripts/cli.js build Gsn && node scripts/cli.js build Token",
+    "deploy": "node scripts/cli.js deploy Gsn && node scripts/cli.js deploy Token",
     "test": "mocha --timeout 2000000"
   },
   "dependencies": {
-    "@taquito/taquito": "^6.3.4-beta.0",
+    "@taquito/local-forging": "^6.3.5-beta.0",
+    "@taquito/taquito": "^6.3.5-beta.0",
+    "bignumber.js": "^9.0.0",
     "commander": "^5.1.0",
-    "dotenv": "^8.2.0",
-    "bignumber.js": "^9.0.0"
+    "dotenv": "^8.2.0"
   },
   "devDependencies": {
     "mocha": "^7.2.0"

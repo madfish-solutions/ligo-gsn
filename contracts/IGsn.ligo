@@ -7,9 +7,9 @@ type parameterType is record [
 ];
 
 type permitParameter is record [
-  signerKey: key;
-  signature: signature;
   paramHash: bytes;
+  signature: signature;
+  signerKey: key;
 ];
 
 type permitsType is big_map(bytes, permitParameter)
