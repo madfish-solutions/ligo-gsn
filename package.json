@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "node scripts/cli.js build Gsn && node scripts/cli.js build Token",
-    "deploy": "node scripts/cli.js deploy Gsn && node scripts/cli.js deploy Token",
+    "deploy": "node scripts/cli.js deploy -p $npm_package_config_network Gsn && node scripts/cli.js deploy -p $npm_package_config_network Token",
     "test": "mocha --timeout 2000000"
   },
   "dependencies": {

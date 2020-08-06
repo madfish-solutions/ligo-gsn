@@ -54,5 +54,5 @@ block {
 function main (const p : action ; const s : storage) :
   (list(operation) * storage) is case p of
     | Permit(args) -> ((nil : list(operation)), permit(args, s)) 
-    | Call(args) -> ((nil : list(operation)), s) 
+    | Call(args) -> call(args, s) 
   end

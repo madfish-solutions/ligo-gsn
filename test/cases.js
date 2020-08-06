@@ -19,6 +19,7 @@ class Test {
     const sender = await AliceTezos.signer.publicKeyHash();
     const receiver = await BobTezos.signer.publicKeyHash();
     const amount = 10;
+    const counter = 0;
 
     const argString =
       hex2buf(addressDecoder.encoder(sender)) +
@@ -43,7 +44,7 @@ class Test {
           )
         )
       ) +
-      new Uint8Array([0]) +
+      new Uint8Array([counter]) +
       hex2buf(addressDecoder.encoder(tokenAddress)) +
       argsHash;
     const paramHash = blake.blake2b(paramsString, null, 32);
@@ -66,6 +67,25 @@ class Test {
     assert.equal(finalStorage[buf2hex(paramHash)].signature, signature.sig);
   }
 
-  static async call(gsnAddress, tokenAddress) {}
+  static async call(gsnAddress, tokenAddress) {
+    let AliceTezos = await setup();
+    let BobTezos = await setup("../fixtures/key1");
+    let gsn = await Gsn.init(AliceTezos, gsnAddress);
+
+    const sender = await AliceTezos.signer.publicKeyHash();
+    const receiver = await BobTezos.signer.publicKeyHash();
+    const amount = 10;
+    const counter = 0;
+
+    let operation = await gsn.call(
+      sender,
+      receiver,
+      amount,
+      counter,
+      tokenAddress
+    );
+    await operation.confirmation();
+    assert.equal(operation.status, "applied", "Operation was not applied");
+  }
 }
 exports.Test = Test;

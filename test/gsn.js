@@ -38,5 +38,13 @@ class Gsn {
     await operation.confirmation();
     return operation;
   }
+
+  async call(sender, receiver, amount, counter, tokenAddress) {
+    let operation = await this.contract.methods
+      .call(tokenAddress, counter, sender, receiver, amount)
+      .send();
+    await operation.confirmation();
+    return operation;
+  }
 }
 exports.Gsn = Gsn;
