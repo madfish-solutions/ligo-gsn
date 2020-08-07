@@ -1,4 +1,4 @@
-const { setup } = require("./utils");
+const { setup, concat, serializeAddress } = require("./utils");
 const Token = require("./token").Token;
 const Gsn = require("./gsn").Gsn;
 const blake = require("blakejs");
@@ -21,38 +21,38 @@ class Test {
     const amount = 10;
     const counter = 0;
 
-    const argString =
-      hex2buf(addressDecoder.encoder(sender)) +
-      hex2buf(addressDecoder.encoder(receiver)) +
-      Uint8Array.from([amount]);
+    const argString = concat(
+      concat(serializeAddress(sender), serializeAddress(receiver)),
+      Uint8Array.from([5, 0, amount])
+    );
     const argsHash = blake.blake2b(argString, null, 32);
 
-    hex2buf(
-      buf2hex(
-        b58cdecode(
-          await AliceTezos.rpc.getChainId(),
-          new Uint8Array([87, 82, 0])
+    const paramsString = concat(
+      concat(
+        concat(
+          hex2buf(
+            "050a00000004" +
+              buf2hex(
+                b58cdecode(
+                  await AliceTezos.rpc.getChainId(),
+                  new Uint8Array([87, 82, 0])
+                )
+              )
+          ),
+          new Uint8Array([5, 0, counter])
+        ),
+        hex2buf(
+          "050a00000016" + addressDecoder.encoder(tokenAddress) + "050a00000020"
         )
-      )
+      ),
+      argsHash
     );
-    const paramsString =
-      hex2buf(
-        buf2hex(
-          b58cdecode(
-            await AliceTezos.rpc.getChainId(),
-            new Uint8Array([87, 82, 0])
-          )
-        )
-      ) +
-      new Uint8Array([counter]) +
-      hex2buf(addressDecoder.encoder(tokenAddress)) +
-      argsHash;
     const paramHash = blake.blake2b(paramsString, null, 32);
     const signature = await AliceTezos.signer.sign(buf2hex(paramHash));
 
     let operation = await gsn.permit(
       signerKey,
-      signature.sig,
+      signature.prefixSig,
       buf2hex(paramHash)
     );
     await operation.confirmation();

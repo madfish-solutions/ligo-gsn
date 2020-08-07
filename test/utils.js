@@ -3,8 +3,16 @@ const fs = require("fs");
 const { InMemorySigner } = require("@taquito/signer");
 const path = require("path");
 const { execSync } = require("child_process");
-const blake = require("blakejs");
-const bs58check = require("bs58check");
+const { b58cdecode, hex2buf, buf2hex } = require("@taquito/utils");
+const { getCodec, CODEC } = require("@taquito/local-forging");
+
+const addressDecoder = getCodec(CODEC.ADDRESS);
+
+const PACK_PREFIX = "05";
+const BYTES_PREFIX = "0a";
+const ADDRESS_SIZE = "00000016";
+const CHAIN_ID_SIZE = "00000004";
+const ARGS_SIZE = "00000020";
 
 const { network: provider } = JSON.parse(
   fs.readFileSync("./deploy/Token.json").toString()
@@ -49,4 +57,30 @@ exports.setup = async (keyPath = "../fixtures/key") => {
     },
   });
   return tezos;
+};
+
+exports.concat = (a, b) => {
+  var c = new a.constructor(a.length + b.length);
+  c.set(a);
+  c.set(b, a.length);
+
+  return c;
+};
+
+exports.serializeAddress = (address) => {
+  return hex2buf(
+    PACK_PREFIX + BYTES_PREFIX + ADDRESS_SIZE + addressDecoder.encoder(address)
+  );
+};
+
+exports.serializeChainId = (chainId) => {
+  return hex2buf(
+    PACK_PREFIX +
+      BYTES_PREFIX +
+      CHAIN_ID_SIZE +
+      hex2buf(
+        "050a00000004" +
+          buf2hex(b58cdecode(chainId, new Uint8Array([87, 82, 0])))
+      )
+  );
 };
