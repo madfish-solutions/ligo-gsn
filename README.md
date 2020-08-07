@@ -4,7 +4,7 @@
 ## Prerequirements
 
 - Install [Ligo](https://ligolang.org/docs/intro/installation).
-- Run local node on `http://127.0.0.1:8732` or set `$npm_package_config_network` in `package.json`
+- Run local node on `http://127.0.0.1:8732` or configure another provider as`$npm_package_config_network` in `package.json`
 - Put unencrypted keys to `fixtures/key` and `fixtures/key1`; they will be used for contract deployment and call.
 - Install dependencies:
 
