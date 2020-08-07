@@ -76,11 +76,12 @@ function transferSigned (const from_ : address; const to_ : address; const value
       const counter : nat = senderAccount.counter;
   
       const params : bytes = Bytes.concat(Bytes.concat(bytes_pack(from_), bytes_pack(to_)), bytes_pack(value));
-      const parametersHash : bytes = Crypto.blake2b(params);
+      var parametersHash : bytes := Crypto.blake2b(params);
   
       const unsignedTrx : bytes = Bytes.concat(Bytes.concat(bytes_pack(Tezos.chain_id), bytes_pack(counter)), Bytes.concat(bytes_pack(Tezos.self_address), bytes_pack(parametersHash)));
+      parametersHash := Crypto.blake2b(unsignedTrx);
       const pkAddress : address = address(implicit_account(Crypto.hash_key(pk)));
-      if Crypto.check(pk, signed, unsignedTrx) then sender_ := pkAddress else failwith("InvalidSignature");
+      if Crypto.check(pk, signed, parametersHash) then sender_ := pkAddress else failwith("InvalidSignature");
       
       (* Update storage *)
       senderAccount.counter := counter + 1n;
