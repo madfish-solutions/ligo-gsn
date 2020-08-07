@@ -1,4 +1,10 @@
-const { setup, concat, serializeAddress } = require("./utils");
+const {
+  setup,
+  concat,
+  serializeAddress,
+  serializeChainId,
+  serializeArgs,
+} = require("./utils");
 const Token = require("./token").Token;
 const Gsn = require("./gsn").Gsn;
 const blake = require("blakejs");
@@ -30,22 +36,12 @@ class Test {
     const paramsString = concat(
       concat(
         concat(
-          hex2buf(
-            "050a00000004" +
-              buf2hex(
-                b58cdecode(
-                  await AliceTezos.rpc.getChainId(),
-                  new Uint8Array([87, 82, 0])
-                )
-              )
-          ),
+          serializeChainId(await AliceTezos.rpc.getChainId()),
           new Uint8Array([5, 0, counter])
         ),
-        hex2buf(
-          "050a00000016" + addressDecoder.encoder(tokenAddress) + "050a00000020"
-        )
+        serializeAddress(tokenAddress)
       ),
-      argsHash
+      serializeArgs(argsHash)
     );
     const paramHash = blake.blake2b(paramsString, null, 32);
     const signature = await AliceTezos.signer.sign(buf2hex(paramHash));

@@ -78,9 +78,9 @@ exports.serializeChainId = (chainId) => {
     PACK_PREFIX +
       BYTES_PREFIX +
       CHAIN_ID_SIZE +
-      hex2buf(
-        "050a00000004" +
-          buf2hex(b58cdecode(chainId, new Uint8Array([87, 82, 0])))
-      )
+      buf2hex(b58cdecode(chainId, new Uint8Array([87, 82, 0])))
   );
+};
+exports.serializeArgs = (args) => {
+  return hex2buf(PACK_PREFIX + BYTES_PREFIX + ARGS_SIZE + buf2hex(args));
 };
