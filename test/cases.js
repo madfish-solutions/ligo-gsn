@@ -8,7 +8,7 @@ const {
 const Token = require("./token").Token;
 const Gsn = require("./gsn").Gsn;
 const blake = require("blakejs");
-const { b58cdecode, hex2buf, buf2hex } = require("@taquito/utils");
+const { buf2hex } = require("@taquito/utils");
 const { getCodec, CODEC } = require("@taquito/local-forging");
 
 const assert = require("assert");
